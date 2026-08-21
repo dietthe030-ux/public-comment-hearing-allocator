@@ -4,7 +4,8 @@ This document is the reviewer-facing verification record for the public release.
 
 ## Release identity
 
-- Reviewed public Git commit: `2592dff51c51e9e3b63c42a94cc4608b8730a341`
+- Prior reviewed public Git commit: `2592dff51c51e9e3b63c42a94cc4608b8730a341`
+- Final public Git commit: `a850ee93b24a9c8fed2d408b65df6b7a806769f8`
 - Network: GenLayer Studionet
 - Contract: `0xd98C7f861b0712A0102EaB56922A285Bd4AE4411`
 - Deployment transaction: `0x988d91858da2f24211bf506bdabd5299c41233541d01a8f37e38c1f8b0a93068`
