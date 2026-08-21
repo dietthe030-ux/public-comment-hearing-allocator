@@ -1,0 +1,25 @@
+[project]
+name = "public-comment-hearing-allocator"
+version = "0.1.0"
+description = "Intelligent Contract for public comment hearing slot allocation on GenLayer Studionet"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "genlayer-py>=0.16.0",
+    "pytest>=8.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "genvm-linter>=0.11.0",
+    "genlayer-test>=0.29.0",
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+pythonpath = ["."]
+addopts = "-p no:gltest"
