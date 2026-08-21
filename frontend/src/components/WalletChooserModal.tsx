@@ -128,10 +128,10 @@ export const WalletChooserModal: React.FC<WalletChooserModalProps> = ({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                {item.metadata.defaultIcon ? (
+                {(item.detail?.info.icon || item.metadata.defaultIcon) ? (
                   <img
-                    src={item.metadata.defaultIcon}
-                    alt=""
+                    src={item.detail?.info.icon || item.metadata.defaultIcon}
+                    alt={`${item.metadata.name} logo`}
                     width={28}
                     height={28}
                     style={{ borderRadius: 'var(--radius-control)' }}
@@ -175,16 +175,6 @@ export const WalletChooserModal: React.FC<WalletChooserModalProps> = ({
           ))}
         </div>
 
-        <div
-          style={{
-            fontSize: 'var(--text-xs)',
-            color: 'var(--color-ink-2)',
-            textAlign: 'center',
-            marginTop: 'var(--space-3)',
-          }}
-        >
-          Supports MetaMask, OKX Wallet, and Rabby only.
-        </div>
       </div>
     </div>
   );

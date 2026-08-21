@@ -245,7 +245,7 @@ describe('Austere Civic Workbench Component Suites', () => {
         walletType: 'metamask',
         metadata: ALLOWLISTED_WALLETS[0],
         detail: {
-          info: { uuid: '1', name: 'MetaMask', icon: '', rdns: 'io.metamask' },
+          info: { uuid: '1', name: 'MetaMask', icon: 'data:image/svg+xml,provider-logo', rdns: 'io.metamask' },
           provider: { request: vi.fn(), on: vi.fn(), removeListener: vi.fn() },
         },
         isAvailable: true,
@@ -265,6 +265,8 @@ describe('Austere Civic Workbench Component Suites', () => {
 
     expect(screen.getByText(/Connect Supported Wallet/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Connect MetaMask/i })).toBeInTheDocument();
+    expect(screen.getByAltText('MetaMask logo')).toHaveAttribute('src', 'data:image/svg+xml,provider-logo');
+    expect(screen.queryByText(/Supports MetaMask, OKX Wallet, and Rabby only/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Connect MetaMask/i }));
     expect(onSelect).toHaveBeenCalledTimes(1);
   });
