@@ -10,3 +10,10 @@ build/
 node_modules/
 frontend/.env
 frontend/.env.local
+
+# Local governance, task evidence, and tool metadata are never public release files.
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+.task/
+frontend/.hallmark/
