@@ -114,7 +114,7 @@ export const WalletChooserModal: React.FC<WalletChooserModalProps> = ({
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', marginTop: 'var(--space-3)' }}>
-          {wallets.map((item) => (
+          {wallets.filter((item) => item.isAvailable).map((item) => (
             <div
               key={`${item.walletType}-${item.detail?.info.uuid || 'missing'}`}
               style={{
@@ -124,7 +124,7 @@ export const WalletChooserModal: React.FC<WalletChooserModalProps> = ({
                 padding: 'var(--space-3)',
                 border: '1px solid var(--color-rule)',
                 borderRadius: 'var(--radius-control)',
-                backgroundColor: item.isAvailable ? 'var(--color-paper-2)' : 'var(--color-paper)',
+                backgroundColor: 'var(--color-paper-2)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
@@ -142,35 +142,20 @@ export const WalletChooserModal: React.FC<WalletChooserModalProps> = ({
                     {item.metadata.name}
                   </div>
                   <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-ink-2)' }}>
-                    {item.isAvailable
-                      ? `Detected (${item.detail?.info.rdns})`
-                      : 'Not detected (Install required)'}
+                    {`Detected (${item.detail?.info.rdns})`}
                   </div>
                 </div>
               </div>
 
-              {item.isAvailable ? (
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => onSelectWallet(item)}
-                  disabled={isConnecting}
-                  aria-label={`Connect ${item.metadata.name}`}
-                >
-                  {isConnecting ? 'Connecting...' : 'Connect'}
-                </button>
-              ) : (
-                <a
-                  href={item.metadata.installUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-secondary"
-                  style={{ fontSize: 'var(--text-xs)' }}
-                  aria-label={`Install ${item.metadata.name}`}
-                >
-                  Install ↗
-                </a>
-              )}
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => onSelectWallet(item)}
+                disabled={isConnecting}
+                aria-label={`Connect ${item.metadata.name}`}
+              >
+                {isConnecting ? 'Connecting...' : 'Connect'}
+              </button>
             </div>
           ))}
         </div>
