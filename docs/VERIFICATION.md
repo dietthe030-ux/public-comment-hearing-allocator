@@ -7,8 +7,8 @@ This document is the reviewer-facing verification record for the public release.
 - Prior approved public Git commit: `fbe2881d7b9a6d3c9e9d7d840176886fd28fae06`
 - Correction contract-source commit: `a5fb6be2f66eb522ee1f0e0ad4440b7e131592c7`
 - Correction public-source/docs commit: `733d43e702e52a8646860b8666f6fcb50f2035ae`
-- Current exact public release commit: `5efb5d3eba3be3d2b2df4afc62dda08b3c591052`
-- Documentation lineage: fixture-only public evidence addition after the correction release
+- Reviewed exact application/source commit: `1cb770305cfaf340a07a9ef7ca4bb9252be69755`
+- Documentation lineage: public verification correction after the selected-wallet provider fix
 - Network: GenLayer Studionet
 - Contract: `0x5ed3410A6cb6766339394828D0f35DdB0eCE4f86`
 - Deployment transaction: `0xd568b8eb1baef25fbd05978aecdfb983d8bf8c9bd06b8a96ca837aa38e47db7e`
@@ -17,7 +17,7 @@ This document is the reviewer-facing verification record for the public release.
 - Correction smoke canonical manifest SHA-256: `00F955340697087D2266AF2C5B8A12F3204E2D0B8AC54251A9C25E233EF25AF1`
 - Correction production-fixture manifest SHA-256: `8CC4B33E2CC0A3802EBC8233C17EA615A1F060FD6DFFA0C44A17D5B38D34364F`
 - Frontend: https://public-comment-hearing-allocator.vercel.app
-- Vercel release inspect: https://vercel.com/dietthe030-uxs-projects/public-comment-hearing-allocator/91THxcpRqvXZafV7Qqin38jQpFQG
+- Vercel release inspect: https://vercel.com/dietthe030-uxs-projects/public-comment-hearing-allocator/62o7nduQuf9xBMQ9XRaR5RL4nk2Y
 
 ## Authoritative Studionet result
 
@@ -60,8 +60,27 @@ Production fixture evidence is served by the exact final Vercel alias:
 - Vitest: 94 passed
 - Production build: PASS
 - Live URL response: HTTP 200
-- Wallet chooser: MetaMask, OKX Wallet, and Rabby are discovered through EIP-6963 allowlisted RDNS values; provider-supplied logos are used with local fallbacks.
+- Wallet chooser: MetaMask, OKX Wallet, and Rabby are allowlisted by EIP-6963 RDNS; only detected providers are rendered, with provider-supplied logos and local fallbacks. In the user Chrome run, MetaMask and OKX were detected and Rabby was correctly omitted because it was not installed.
 - Wallet session behavior: no wallet session is persisted across reload.
+- Selected-provider write routing: the frontend passes the selected EIP-6963 provider into the write transport and does not call GenLayer client connect, which would otherwise fall back to the global `window.ethereum` provider. The user-owned run confirmed OKX signatures for every write below.
+
+## Current exact release Vercel E2E matrix
+
+Every row below was executed by the user through the final Vercel alias `https://public-comment-hearing-allocator.vercel.app` served by Vercel deployment `62o7nduQuf9xBMQ9XRaR5RL4nk2Y`, using the connected OKX Wallet. Docket #8 was signed by `0x2deacd...44ed`; Docket #10 was signed by `0xbf90...b40d`; each docket's stored organizer and admission authority matched its signing wallet. These are frontend E2E receipts, not substituted Studio evidence.
+
+| # | Journey | Expected result | Evidence/status |
+|---|---|---|---|
+| 1 | Load the exact Vercel alias | App title, Studionet, and contract identity are visible | PASS; live alias HTTP 200 and title verified |
+| 2 | Open wallet chooser | Only installed allowlisted providers are shown | PASS; MetaMask and OKX detected; Rabby omitted as not detected |
+| 3 | OKX connect and account binding | Header shows the selected OKX account and it matches the docket authority | PASS; `OKX Wallet: 0xbf90...b40d`; Docket #10 authority `0xbf90...b40d` |
+| 4 | Create hearing | Wallet-confirmed write reaches finalized/readback; reconciliation recovery is safe | PASS; `0xea7b3b57d8feb1cc4614f555cc4e1ccf342593db27faad40d29ae595734c6b35`; final success after Refresh revealed Docket #10; no resubmission |
+| 5 | Register two comments | Each user-signed write reaches finalized/readback and updates the manifest | PASS; c1 `0x43527466581dcdcf3aa55e12827e9863e1e1de344540233a71b37dc1b1dde6dd`; c2 `0x4f3ead5e73043a769a05b3ae3467725aa3b50233bd2c4c94f20e9b52901ef6ba` |
+| 6 | Lock batch | Manifest parity is verified and state becomes `LOCKED` | PASS; `0x54eadf0db4def687048e896227608b51bd52bb16c0e4bb6dcf777f954debb66f`; finalized/readback; expected = computed `8cc4b33e...34364f` |
+| 7 | Cluster and allocate | Consensus clustering and deterministic 2/2 ledger read back in the frontend | PASS; cluster `0xbf9dc66717f82ded4ae0de89ef51b1e73a569dbff756d91bc10aac9ce49db4ed`; allocate `0xa82c58b67d0fa5b49ceed6c1b826995a598709cfd3727e8ad14e91734b9b291e`; both finalized/readback |
+| 8 | Open provenance challenge | Challenge opens during the active window and is pending | PASS; `0xcb96fe7d05a649f8efdf7c4d3f17c6f44129cc42e0239c598a0a6aba25784446`; target c1; pending readback |
+| 9 | Resolve provenance challenge | Consensus resolves the challenge and preserves revision/ledger when evidence is valid | PASS; `0x8c52d396392d9071f35685c2ae24d7c9a18ce4cf63f8f3dfcc6662d004408af0`; `REJECTED`, revision `#0`, pending `0` |
+| 10 | Wrong-wallet/retry control | Rejected wallet requests do not create a hash or alter state; correct account can retry | PASS; user rejected earlier requests with no hash/state change; Docket #10 then succeeded after reconnecting `0xbf90...b40d` |
+| 11 | Finalize and reload | After challenge deadline, finalize reaches `FINAL`; disconnect/reload returns disconnected | PASS on exact release using Docket #8 finalization `0x202255070523f9e14b4b50bf504e8a1cfe1cccbe56213c519f6268407c79b404`; frontend readback `FINAL`, 2 comments, 2/2 slots, 0 pending; Disconnect returned `Connect Wallet`, reload stayed disconnected |
 
 ## Prior release Vercel E2E matrix
 
