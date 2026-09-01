@@ -8,6 +8,8 @@ When a hearing is created, the organizer commits an expected manifest SHA-256 di
 
 During registration, comments are recorded in exact append-only registration order (`index` from `0` to `count - 1`).
 
+Before lock, registration is admission-controlled by the hearing organizer. The contract stores the authenticated signer as `admission_authority` and records an `admission_receipt` derived from the exact hearing ID, external ID, URL, content digest, and signer. `lock_batch` recomputes and verifies every receipt, so a permissionless wallet cannot invalidate the precommitted batch. If an organizer cannot safely complete admission, `cancel_hearing` provides a pre-lock recovery path: the organizer cancels that hearing and creates a replacement with a new manifest.
+
 ### Line Format
 
 For each comment registered in the batch, a single UTF-8 line is generated using the literal pipe delimiter `|`:

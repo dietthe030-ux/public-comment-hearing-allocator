@@ -16,6 +16,7 @@ def test_public_abi_uses_only_studio_safe_types() -> None:
         "open_challenge": {"hearing_id"},
         "resolve_challenge": {"hearing_id", "challenge_id"},
         "finalize_hearing": {"hearing_id"},
+        "cancel_hearing": {"hearing_id"},
         "get_hearing": {"hearing_id"},
         "get_comment_count": {"hearing_id"},
         "get_comment_by_index": {"hearing_id", "index"},

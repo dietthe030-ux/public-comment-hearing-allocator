@@ -35,6 +35,9 @@ export const HearingDetails: React.FC<HearingDetailsProps> = ({ hearing, nowSec 
         <dt>Organizer</dt>
         <dd className="font-mono">{hearing.organizer}</dd>
 
+        <dt>Admission Authority</dt>
+        <dd className="font-mono">{hearing.admission_authority}</dd>
+
         <dt>Proposal URL</dt>
         <dd>
           <a href={hearing.proposal_url} target="_blank" rel="noopener noreferrer">
@@ -89,4 +92,3 @@ export const HearingDetails: React.FC<HearingDetailsProps> = ({ hearing, nowSec 
     </div>
   );
 };
-

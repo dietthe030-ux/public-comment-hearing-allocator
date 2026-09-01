@@ -19,7 +19,8 @@ export type LifecycleState =
   | 'CLUSTERED'
   | 'ALLOCATED'
   | 'CHALLENGE'
-  | 'FINAL';
+  | 'FINAL'
+  | 'CANCELLED';
 
 export const LIFECYCLE_STATES: readonly LifecycleState[] = [
   'COLLECTING',
@@ -80,6 +81,7 @@ export const UNSELECTED_REASONS: readonly UnselectedReasonCode[] = [
 export interface HearingSummary {
   hearing_id: number;
   organizer: HexAddress;
+  admission_authority: HexAddress;
   proposal_url: string;
   proposal_digest: string;
   expected_manifest_digest: string;
@@ -281,6 +283,7 @@ export function decodeHearing(data: unknown): HearingSummary {
 
   const hearingId = validateSafeInteger(data.hearing_id ?? data.id, 'hearing_id', 1);
   const organizer = validateHexAddress(data.organizer, 'organizer');
+  const admissionAuthority = validateHexAddress(data.admission_authority, 'admission_authority');
   const proposalUrl = validateUrl(data.proposal_url, 'proposal_url');
   const proposalDigest = validateSha256(data.proposal_digest, 'proposal_digest');
   const expectedManifestDigest = validateSha256(data.expected_manifest_digest, 'expected_manifest_digest');
@@ -297,6 +300,7 @@ export function decodeHearing(data: unknown): HearingSummary {
   return {
     hearing_id: hearingId,
     organizer,
+    admission_authority: admissionAuthority,
     proposal_url: proposalUrl,
     proposal_digest: proposalDigest,
     expected_manifest_digest: expectedManifestDigest,

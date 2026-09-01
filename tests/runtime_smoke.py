@@ -13,7 +13,7 @@ CONTRACT = Path(__file__).parents[1] / "contracts" / "public_comment_allocator.p
 
 def main() -> None:
     organizer = create_address("organizer")
-    registrar = create_address("registrar")
+    registrar = organizer
     vm = VMContext()
     vm.sender = organizer
     vm.warp("2026-08-22T00:00:00Z")

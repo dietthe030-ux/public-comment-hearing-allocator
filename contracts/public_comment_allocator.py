@@ -22,6 +22,7 @@ STATE_CLUSTERED: str = "CLUSTERED"
 STATE_ALLOCATED: str = "ALLOCATED"
 STATE_CHALLENGE: str = "CHALLENGE"
 STATE_FINAL: str = "FINAL"
+STATE_CANCELLED: str = "CANCELLED"
 
 # Challenge Types
 CHALLENGE_TYPE_PROVENANCE: str = "PROVENANCE_INVALID"
@@ -145,6 +146,12 @@ def _compute_manifest_digest(comments: list[dict]) -> str:
     """Compute the SHA-256 digest of the canonical manifest string."""
     manifest_str = _build_manifest_string(comments)
     return hashlib.sha256(manifest_str.encode("utf-8")).hexdigest().lower()
+
+
+def _compute_admission_receipt(hearing_id: int, external_id: str, url: str, digest: str, registrar: str) -> str:
+    """Bind an admitted record to its exact hearing, evidence, and authenticated registrar."""
+    payload = f"{hearing_id}|{external_id}|{url}|{digest.lower()}|{registrar.lower()}"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest().lower()
 
 
 def _sort_candidate_key(c: dict) -> tuple:
@@ -312,6 +319,7 @@ class PublicCommentAllocator(gl.Contract):
         hearing_data = {
             "id": h_id,
             "organizer": organizer,
+            "admission_authority": organizer,
             "proposal_url": proposal_url.strip(),
             "proposal_digest": proposal_digest.strip().lower(),
             "expected_manifest_digest": expected_manifest_digest.strip().lower(),
@@ -338,7 +346,7 @@ class PublicCommentAllocator(gl.Contract):
         url: str,
         digest: str,
     ) -> u256:
-        """Register a public comment reference into a COLLECTING hearing batch."""
+        """Register an organizer-admitted public record into a COLLECTING hearing batch."""
         h = self._load_hearing(hearing_id)
         if h["state"] != STATE_COLLECTING:
             raise gl.vm.UserError(f"ERR_INVALID_STATE: Hearing is in state {h['state']}, expected COLLECTING")
@@ -346,6 +354,12 @@ class PublicCommentAllocator(gl.Contract):
         now = _get_current_timestamp()
         if now >= h["registration_deadline"]:
             raise gl.vm.UserError(f"ERR_REGISTRATION_CLOSED: Current timestamp ({now}) is at or past registration deadline ({h['registration_deadline']})")
+
+        sender = _get_sender()
+        if sender != h["admission_authority"]:
+            raise gl.vm.UserError(
+                f"ERR_UNAUTHORIZED_ADMISSION: Caller {sender} is not the authenticated admission authority {h['admission_authority']}"
+            )
 
         if not _is_valid_external_id(external_id):
             raise gl.vm.UserError("ERR_INVALID_EXTERNAL_ID: External ID must be 1-128 characters without pipe delimiters or control characters")
@@ -370,7 +384,6 @@ class PublicCommentAllocator(gl.Contract):
             if existing["digest"] == clean_digest:
                 raise gl.vm.UserError(f"ERR_DUPLICATE_DIGEST: Comment digest '{clean_digest}' is already registered")
 
-        sender = _get_sender()
         idx = len(h["comments"])
         comment = {
             "index": idx,
@@ -378,6 +391,10 @@ class PublicCommentAllocator(gl.Contract):
             "url": clean_url,
             "digest": clean_digest,
             "registrar": sender,
+            "admission_authority": h["admission_authority"],
+            "admission_receipt": _compute_admission_receipt(
+                int(hearing_id), clean_id, clean_url, clean_digest, sender
+            ),
             "eligible": True,
             "exclusion_reason": "",
             "cluster_id": 0,
@@ -408,6 +425,18 @@ class PublicCommentAllocator(gl.Contract):
                 f"ERR_INSUFFICIENT_COMMENTS: Registered comments ({len(h['comments'])}) less than slot count ({h['slot_count']})"
             )
 
+        # Recheck the authenticated admission boundary immediately before lock.
+        # This is the source-of-truth gate that prevents an unauthorized wallet
+        # from poisoning the organizer's precommitted manifest.
+        for c in h["comments"]:
+            if c.get("registrar") != h["admission_authority"] or c.get("admission_authority") != h["admission_authority"]:
+                raise gl.vm.UserError("ERR_INVALID_ADMISSION: Comment is not bound to the authenticated admission authority")
+            expected_receipt = _compute_admission_receipt(
+                int(hearing_id), c["external_id"], c["url"], c["digest"], c["registrar"]
+            )
+            if c.get("admission_receipt") != expected_receipt:
+                raise gl.vm.UserError("ERR_INVALID_ADMISSION: Comment admission receipt does not match its authenticated record")
+
         computed_digest = _compute_manifest_digest(h["comments"])
         if computed_digest != h["expected_manifest_digest"]:
             raise gl.vm.UserError(
@@ -418,6 +447,20 @@ class PublicCommentAllocator(gl.Contract):
         h["state"] = STATE_LOCKED
         self._save_hearing(hearing_id, h)
         return computed_digest
+
+    @gl.public.write
+    def cancel_hearing(self, hearing_id: u256) -> str:
+        """Organizer recovery path for an admission batch that cannot be safely locked."""
+        h = self._load_hearing(hearing_id)
+        sender = _get_sender()
+        if sender != h["organizer"]:
+            raise gl.vm.UserError(f"ERR_UNAUTHORIZED: Caller {sender} is not organizer {h['organizer']}")
+        if h["state"] != STATE_COLLECTING:
+            raise gl.vm.UserError(f"ERR_INVALID_STATE: Hearing is in state {h['state']}, expected COLLECTING")
+        h["state"] = STATE_CANCELLED
+        h["recovery_reason"] = "Admission batch cancelled before lock; create a replacement hearing with a new manifest."
+        self._save_hearing(hearing_id, h)
+        return STATE_CANCELLED
 
     @gl.public.write
     def cluster_comments(self, hearing_id: u256) -> str:
@@ -1065,6 +1108,7 @@ class PublicCommentAllocator(gl.Contract):
         return _json_result({
             "hearing_id": h["id"],
             "organizer": h["organizer"],
+            "admission_authority": h["admission_authority"],
             "proposal_url": h["proposal_url"],
             "proposal_digest": h["proposal_digest"],
             "expected_manifest_digest": h["expected_manifest_digest"],
@@ -1078,6 +1122,7 @@ class PublicCommentAllocator(gl.Contract):
             "accepted_challenge_count": h["accepted_challenge_count"],
             "pending_challenge_count": pending_count,
             "total_challenge_count": len(h["challenges"]),
+            "recovery_reason": h.get("recovery_reason", ""),
         })
 
     @gl.public.view

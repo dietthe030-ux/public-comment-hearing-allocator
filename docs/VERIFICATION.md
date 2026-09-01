@@ -4,26 +4,26 @@ This document is the reviewer-facing verification record for the public release.
 
 ## Release identity
 
-- Prior reviewed public Git commit: `2592dff51c51e9e3b63c42a94cc4608b8730a341`
-- Reviewed exact public Git commit: `cf8f2a8ec69b3b3eebecc28269e6d671643bd3da`
-- Documentation lineage commit: `a850ee93b24a9c8fed2d408b65df6b7a806769f8`
+- Prior approved public Git commit: `fbe2881d7b9a6d3c9e9d7d840176886fd28fae06`
+- Correction source/public Git commit: pending this correction commit
+- Documentation lineage: judge-requested correction after `fbe2881d7b9a6d3c9e9d7d840176886fd28fae06`
 - Network: GenLayer Studionet
-- Contract: `0xd98C7f861b0712A0102EaB56922A285Bd4AE4411`
-- Deployment transaction: `0x988d91858da2f24211bf506bdabd5299c41233541d01a8f37e38c1f8b0a93068`
+- Contract: `0x5ed3410A6cb6766339394828D0f35DdB0eCE4f86`
+- Deployment transaction: `0xd568b8eb1baef25fbd05978aecdfb983d8bf8c9bd06b8a96ca837aa38e47db7e`
 - Finalization transaction: `0x80391c3c2dc52faeae6cc46765967a38b387c2e03fb47d005d247830afa058c4`
-- Contract source SHA-256: `B37C4040CF0C17DABA65360336668D444CE0239F385C3555AF9D7D79FD276D8F`
-- Canonical manifest SHA-256: `6DD8C6A4A7B94F2133E617230D1FDB8451C7924465D845B8CF2A5C4ACE09BA18`
+- Contract source SHA-256: `0B338E54EA482D147E677A7C721D25593E24FF722AA4F8E3D462B14C718C83A3`
+- Correction smoke canonical manifest SHA-256: `00F955340697087D2266AF2C5B8A12F3204E2D0B8AC54251A9C25E233EF25AF1`
 - Frontend: https://public-comment-hearing-allocator.vercel.app
-- Vercel release inspect: https://vercel.com/dietthe030-uxs-projects/public-comment-hearing-allocator/5hZDnnJdgPo6S9QW6xwDco3voBEf
+- Vercel release inspect: https://vercel.com/dietthe030-uxs-projects/public-comment-hearing-allocator/AS86Cf5vp8erkvM58VUrMhW3Dt81
 
 ## Authoritative Studionet result
 
-The deployment and finalization transactions were read back from the Studionet RPC. Both finalized with consensus and successful leader execution. The final contract state is `FINAL`, revision `1`, with two selected comments, one accepted duplicate challenge, one rejected provenance challenge, and zero pending challenges. The three-line canonical comment manifest read back with an exact digest match.
+The prior approved deployment remains the evidence for the original release. The correction deployment is a new Studionet instance because the judge-requested signer-bound admission and pre-lock recovery behavior changes contract source. The correction deployment, create-hearing transaction, and two organizer-signed registration transactions finalized successfully. A fresh lock/clustering/allocation/challenge/finalization run and frontend E2E package are required before final resubmission.
 
 ## Contract verification
 
 - GenLayer lint: PASS
-- Direct-mode contract tests: 50 passed
+- Direct-mode contract tests: 52 passed
 - Runtime smoke test: PASS
 - Python compilation: PASS
 - Dependency check: PASS
@@ -40,7 +40,7 @@ The deployment and finalization transactions were read back from the Studionet R
 
 ## Final Vercel E2E matrix
 
-This matrix is tied to the final Vercel alias above. Every row is a user-executed frontend journey on that alias. Retained transaction hashes and readback values are included as cross-checks, not as substitutes for the user's frontend execution.
+The prior matrix below belongs to the previously approved release. A new numbered matrix tied to the correction deployment and final Vercel release is required; Studio transactions are not substitutes for user-owned frontend evidence.
 
 | # | Journey | Expected result | Evidence/status |
 |---|---|---|---|

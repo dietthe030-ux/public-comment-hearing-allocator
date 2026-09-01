@@ -44,6 +44,7 @@ describe('Types and Runtime Decoders', () => {
     const rawHearing = {
       hearing_id: 1,
       organizer: '0x1234567890abcdef1234567890abcdef12345678',
+      admission_authority: '0x1234567890abcdef1234567890abcdef12345678',
       proposal_url: 'https://example.gov/p1.txt',
       proposal_digest: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       expected_manifest_digest: 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb',

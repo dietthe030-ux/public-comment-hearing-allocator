@@ -31,6 +31,7 @@ from contracts.public_comment_allocator import (
     REASON_UNSELECTED_PROVENANCE,
     REASON_UNSELECTED_SLOT_LIMIT,
     STATE_CHALLENGE,
+    STATE_CANCELLED,
     STATE_CLUSTERED,
     STATE_COLLECTING,
     STATE_FINAL,
@@ -257,7 +258,7 @@ class TestCommentRegistration:
             challenge_deadline=chal_dl,
         )
 
-        gl.message.sender_address = USER_ALICE
+        gl.message.sender_address = ORGANIZER
         digest1 = "1" * 64
         idx0 = allocator.register_comment(h_id, "comm-1", "https://comments.gov/1", digest1)
         assert idx0 == 0
@@ -267,8 +268,25 @@ class TestCommentRegistration:
         assert c0["external_id"] == "comm-1"
         assert c0["url"] == "https://comments.gov/1"
         assert c0["digest"] == digest1
-        assert c0["registrar"] == USER_ALICE
+        assert c0["registrar"] == ORGANIZER
+        assert c0["admission_authority"] == ORGANIZER
+        assert len(c0["admission_receipt"]) == 64
         assert c0["eligible"] is True
+
+    def test_register_comment_rejects_unauthorized_admission(self, allocator: PublicCommentAllocator):
+        gl.message.sender_address = ORGANIZER
+        reg_dl, chal_dl = get_test_deadlines(500, 1500)
+        h_id = allocator.create_hearing(
+            proposal_url=PROPOSAL_URL,
+            proposal_digest=PROPOSAL_DIGEST,
+            expected_manifest_digest="a" * 64,
+            slot_count=1,
+            registration_deadline=reg_dl,
+            challenge_deadline=chal_dl,
+        )
+        gl.message.sender_address = USER_ALICE
+        with pytest.raises(gl.vm.UserError, match="ERR_UNAUTHORIZED_ADMISSION"):
+            allocator.register_comment(h_id, "comm-unauthorized", "https://agency.gov/comments/u", "1" * 64)
 
     def test_register_comment_past_registration_deadline(self, allocator: PublicCommentAllocator, monkeypatch):
         gl.message.sender_address = ORGANIZER
@@ -417,6 +435,22 @@ class TestBatchLockAndManifest:
         gl.message.sender_address = USER_ALICE
         with pytest.raises(gl.vm.UserError, match="ERR_UNAUTHORIZED"):
             allocator.lock_batch(h_id)
+
+    def test_cancel_hearing_is_organizer_recovery_path(self, allocator: PublicCommentAllocator):
+        gl.message.sender_address = ORGANIZER
+        reg_dl, chal_dl = get_test_deadlines(500, 1500)
+        h_id = allocator.create_hearing(
+            proposal_url=PROPOSAL_URL,
+            proposal_digest=PROPOSAL_DIGEST,
+            expected_manifest_digest="a" * 64,
+            slot_count=1,
+            registration_deadline=reg_dl,
+            challenge_deadline=chal_dl,
+        )
+        assert allocator.cancel_hearing(h_id) == STATE_CANCELLED
+        assert allocator.get_state(h_id) == STATE_CANCELLED
+        with pytest.raises(gl.vm.UserError, match="ERR_INVALID_STATE"):
+            allocator.register_comment(h_id, "comm-after-cancel", "https://agency.gov/comments/c", "1" * 64)
 
     def test_lock_batch_manifest_mismatch(self, allocator: PublicCommentAllocator, mock_gl):
         _ = mock_gl

@@ -16,6 +16,7 @@ export const LifecycleRail: React.FC<LifecycleRailProps> = ({ currentState }) =>
       ALLOCATED: 3,
       CHALLENGE: 4,
       FINAL: 5,
+      CANCELLED: 6,
     };
 
     const currentIdx = order[currentState];
@@ -35,7 +36,7 @@ export const LifecycleRail: React.FC<LifecycleRailProps> = ({ currentState }) =>
   const getActionHint = (state?: LifecycleState): string => {
     switch (state) {
       case 'COLLECTING':
-        return 'Permitted actions: Register comments (any address) · Lock batch (organizer only).';
+        return 'Permitted actions: Organizer-admitted records only · Lock or cancel before lock (organizer only).';
       case 'LOCKED':
         return 'Permitted action: Run consensus clustering (permissionless).';
       case 'CLUSTERED':
@@ -44,6 +45,8 @@ export const LifecycleRail: React.FC<LifecycleRailProps> = ({ currentState }) =>
         return 'Permitted actions: Open / resolve dispute challenges · Finalize after deadline.';
       case 'FINAL':
         return 'Hearing is finalized and immutable. Allocations and challenges are locked.';
+      case 'CANCELLED':
+        return 'Admission batch cancelled before lock. Create a replacement hearing with a new manifest.';
       default:
         return 'No hearing selected.';
     }

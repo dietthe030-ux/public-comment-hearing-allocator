@@ -173,6 +173,7 @@ export class GenLayerContractClient {
     const summary = decodeHearing({
       hearing_id: validId,
       organizer: '0x0000000000000000000000000000000000000000',
+      admission_authority: '0x0000000000000000000000000000000000000000',
       proposal_url: 'https://example.com/p.txt',
       proposal_digest: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       expected_manifest_digest: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
@@ -304,6 +305,16 @@ export class GenLayerContractClient {
       txHash: receipt.hash,
       receipt,
     };
+  }
+
+  /** Cancel a collecting hearing when its authenticated admission batch cannot be safely locked. */
+  public async cancelHearing(
+    hearingId: number,
+    options: WriteCallOptions,
+  ): Promise<{ txHash: TransactionHash; receipt: VerifiedReceipt }> {
+    const validId = validateSafeInteger(hearingId, 'hearing_id', 1);
+    const receipt = await this.executeWrite('cancel_hearing', [validId], options);
+    return { txHash: receipt.hash, receipt };
   }
 
   /**

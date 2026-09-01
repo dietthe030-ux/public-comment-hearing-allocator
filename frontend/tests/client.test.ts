@@ -23,7 +23,7 @@ vi.mock('genlayer-js', () => ({
   }),
 }));
 
-describe('GenLayerContractClient (8 Writes & 12 Views)', () => {
+describe('GenLayerContractClient (9 Writes & 12 Views)', () => {
   const contractAddress = '0x1234567890abcdef1234567890abcdef12345678' as const;
   const userAccount = '0x9999999999999999999999999999999999999999' as const;
   const validTxHash = '0x1111111111111111111111111111111111111111111111111111111111111111' as const;
@@ -52,6 +52,7 @@ describe('GenLayerContractClient (8 Writes & 12 Views)', () => {
       mockReadContract.mockResolvedValue({
         hearing_id: 1,
         organizer: '0x1234567890abcdef1234567890abcdef12345678',
+        admission_authority: '0x1234567890abcdef1234567890abcdef12345678',
         proposal_url: 'https://example.gov/p1.txt',
         proposal_digest: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
         expected_manifest_digest: 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb',
@@ -369,6 +370,14 @@ describe('GenLayerContractClient (8 Writes & 12 Views)', () => {
       mockWaitForTransactionReceipt.mockResolvedValue(successReceipt);
 
       const res = await client.clusterComments(1, { account: userAccount, provider: mockProvider });
+      expect(res.txHash).toBe(validTxHash);
+    });
+
+    it('4b. cancelHearing', async () => {
+      mockWriteContract.mockResolvedValue(validTxHash);
+      mockWaitForTransactionReceipt.mockResolvedValue(successReceipt);
+
+      const res = await client.cancelHearing(1, { account: userAccount, provider: mockProvider });
       expect(res.txHash).toBe(validTxHash);
     });
 

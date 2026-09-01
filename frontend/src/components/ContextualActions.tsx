@@ -32,6 +32,7 @@ interface ContextualActionsProps {
     digest: string;
   }) => Promise<void>;
   onLockBatch: (hearingId: number) => Promise<void>;
+  onCancelHearing: (hearingId: number) => Promise<void>;
   onClusterComments: (hearingId: number) => Promise<void>;
   onAllocateSlots: (hearingId: number) => Promise<void>;
   onOpenChallenge: (params: {
@@ -51,6 +52,7 @@ export const ContextualActions: React.FC<ContextualActionsProps> = ({
   nowSec = Math.floor(Date.now() / 1000),
   onRegisterComment,
   onLockBatch,
+  onCancelHearing,
   onClusterComments,
   onAllocateSlots,
   onOpenChallenge,
@@ -211,6 +213,15 @@ export const ContextualActions: React.FC<ContextualActionsProps> = ({
             ) : (
               <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                 {registerError && <div className="alert alert-danger">{registerError}</div>}
+                <div className="alert alert-pending">
+                  Registration is restricted to the authenticated admission authority: {hearing.admission_authority}.
+                  The organizer must admit each public record before the manifest can be locked.
+                </div>
+                {!isOrganizer && (
+                  <div className="alert alert-danger">
+                    Connect the organizer wallet to admit records. Other wallets cannot register comments for this hearing.
+                  </div>
+                )}
                 <div className="form-group">
                   <label className="form-label" htmlFor="reg-ext-id">External Comment ID (1-128 chars):</label>
                   <input
@@ -272,7 +283,7 @@ export const ContextualActions: React.FC<ContextualActionsProps> = ({
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  disabled={!canWrite || comments.length >= 12}
+                  disabled={!canWrite || !isOrganizer || comments.length >= 12}
                 >
                   {isWriting ? 'Submitting...' : 'Register Comment'}
                 </button>
@@ -303,6 +314,17 @@ export const ContextualActions: React.FC<ContextualActionsProps> = ({
             >
               {isWriting ? 'Locking Batch...' : 'Lock Comment Batch'}
             </button>
+            {isOrganizer && (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => onCancelHearing(hearing.hearing_id)}
+                disabled={!canWrite}
+                style={{ width: '100%', marginTop: 'var(--space-2)' }}
+              >
+                {isWriting ? 'Cancelling...' : 'Cancel and Recreate Hearing'}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -468,4 +490,3 @@ export const ContextualActions: React.FC<ContextualActionsProps> = ({
     </div>
   );
 };
-

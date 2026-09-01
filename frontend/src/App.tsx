@@ -290,6 +290,18 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleCancelHearing = async (hearingId: number) => {
+    const opts = getWriteOptions('Cancel Hearing');
+    setTxState({ phase: 'preparing', actionLabel: 'Cancel Hearing' });
+    try {
+      const result = await client.cancelHearing(hearingId, opts);
+      await reconcileHearing(hearingId, result.txHash, 'Cancel Hearing');
+    } catch (err: unknown) {
+      setAppError(`Cancel Hearing failed: ${err instanceof Error ? err.message : String(err)}`);
+      throw err;
+    }
+  };
+
   const handleClusterComments = async (hearingId: number) => {
     const opts = getWriteOptions('Cluster Comments');
     setTxState({ phase: 'preparing', actionLabel: 'Cluster Comments' });
@@ -426,6 +438,7 @@ export const App: React.FC = () => {
             nowSec={nowSec}
             onRegisterComment={handleRegisterComment}
             onLockBatch={handleLockBatch}
+            onCancelHearing={handleCancelHearing}
             onClusterComments={handleClusterComments}
             onAllocateSlots={handleAllocateSlots}
             onOpenChallenge={handleOpenChallenge}

@@ -20,6 +20,7 @@ import { DiscoveredWalletItem, ALLOWLISTED_WALLETS } from '../src/wallet';
 const mockHearing: HearingSummary = {
   hearing_id: 1,
   organizer: '0x1234567890abcdef1234567890abcdef12345678',
+  admission_authority: '0x1234567890abcdef1234567890abcdef12345678',
   proposal_url: 'https://example.gov/rules/p1.txt',
   proposal_digest: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
   expected_manifest_digest: 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb',
@@ -206,6 +207,7 @@ describe('Austere Civic Workbench Component Suites', () => {
         nowSec={1700000000} // Before registration deadline 1800000000
         onRegisterComment={onRegister}
         onLockBatch={vi.fn()}
+        onCancelHearing={vi.fn()}
         onClusterComments={vi.fn()}
         onAllocateSlots={vi.fn()}
         onOpenChallenge={vi.fn()}
@@ -227,6 +229,7 @@ describe('Austere Civic Workbench Component Suites', () => {
         nowSec={1850000000} // After deadline 1800000000
         onRegisterComment={vi.fn()}
         onLockBatch={vi.fn()}
+        onCancelHearing={vi.fn()}
         onClusterComments={vi.fn()}
         onAllocateSlots={vi.fn()}
         onOpenChallenge={vi.fn()}
