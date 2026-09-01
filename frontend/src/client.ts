@@ -464,7 +464,6 @@ export class GenLayerContractClient {
       });
 
       notify('wallet_confirmation');
-      await client.connect('studionet');
 
       const txHash = (await client.writeContract({
         address: this.address,
