@@ -5,7 +5,7 @@ This document is the reviewer-facing verification record for the public release.
 ## Release identity
 
 - Prior approved public Git commit: `fbe2881d7b9a6d3c9e9d7d840176886fd28fae06`
-- Correction source/public Git commit: `c907de4f7f8227ce7964569c4adceb210b8d3980`
+- Correction source/public Git commit: `fa29fa52091de686babad18491d002c616995ae9`
 - Documentation lineage: judge-requested correction after `fbe2881d7b9a6d3c9e9d7d840176886fd28fae06`
 - Network: GenLayer Studionet
 - Contract: `0x5ed3410A6cb6766339394828D0f35DdB0eCE4f86`
