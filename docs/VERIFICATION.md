@@ -5,12 +5,12 @@ This document is the reviewer-facing verification record for the public release.
 ## Release identity
 
 - Prior approved public Git commit: `fbe2881d7b9a6d3c9e9d7d840176886fd28fae06`
-- Correction source/public Git commit: `a5fb6be2f66eb522ee1f0e0ad4440b7e131592c7`
+- Correction source/public Git commit: `c907de4f7f8227ce7964569c4adceb210b8d3980`
 - Documentation lineage: judge-requested correction after `fbe2881d7b9a6d3c9e9d7d840176886fd28fae06`
 - Network: GenLayer Studionet
 - Contract: `0x5ed3410A6cb6766339394828D0f35DdB0eCE4f86`
 - Deployment transaction: `0xd568b8eb1baef25fbd05978aecdfb983d8bf8c9bd06b8a96ca837aa38e47db7e`
-- Finalization transaction: `0x80391c3c2dc52faeae6cc46765967a38b387c2e03fb47d005d247830afa058c4`
+- Prior approved finalization transaction (previous release): `0x80391c3c2dc52faeae6cc46765967a38b387c2e03fb47d005d247830afa058c4`
 - Contract source SHA-256: `0B338E54EA482D147E677A7C721D25593E24FF722AA4F8E3D462B14C718C83A3`
 - Correction smoke canonical manifest SHA-256: `00F955340697087D2266AF2C5B8A12F3204E2D0B8AC54251A9C25E233EF25AF1`
 - Frontend: https://public-comment-hearing-allocator.vercel.app
@@ -32,13 +32,13 @@ The prior approved deployment remains the evidence for the original release. The
 
 - ESLint: PASS
 - TypeScript typecheck: PASS
-- Vitest: 93 passed
+- Vitest: 94 passed
 - Production build: PASS
 - Live URL response: HTTP 200
 - Wallet chooser: MetaMask, OKX Wallet, and Rabby are discovered through EIP-6963 allowlisted RDNS values; provider-supplied logos are used with local fallbacks.
 - Wallet session behavior: no wallet session is persisted across reload.
 
-## Final Vercel E2E matrix
+## Prior release Vercel E2E matrix
 
 The prior matrix below belongs to the previously approved release. A new numbered matrix tied to the correction deployment and final Vercel release is required; Studio transactions are not substitutes for user-owned frontend evidence.
 
